@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#ffd9ec" />
+<title>Dating with me～</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #ffd9ec 0%, #fff3f6 35%, #f3ffe9 75%, #dff6e4 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 28px 14px;
+    touch-action: manipulation;
+  }
+
+  /* 外层大圆角面板 */
+  .frame {
+    position: relative; z-index: 1;
+    width: min(560px, 100%);
+    background: rgba(255, 255, 255, .42);
+    border: 2px solid rgba(110, 110, 110, .35);
+    border-radius: 48px;
+    padding: clamp(18px, 5vw, 42px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .10);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+
+  /* 卡片 */
+  .card {
+    display: none;
+    background: #fcfcfa;
+    border: 3px solid #141414;
+    border-radius: 34px;
+    padding: clamp(30px, 6vw, 48px) clamp(20px, 5vw, 36px);
+    box-shadow: 10px 12px 0 #141414;
+    text-align: center;
+  }
+  .card.active { display: block; animation: popIn .38s cubic-bezier(.2, .9, .3, 1.25); }
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(18px) scale(.96); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* 头像 / 图标方块 */
+  .icon {
+    width: 112px; height: 112px;
+    margin: 0 auto 22px;
+    border: 3px solid #141414;
+    border-radius: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 58px;
+    background: #eceae6;
+    box-shadow: 9px 9px 0 #ff4fa3;
+    overflow: hidden;
+  }
+  .icon.pink { background: #ff7ac0; }
+  .icon.red  { background: #ff5a4e; }
+  .icon img { width: 100%; height: 100%; object-fit: cover; }
+
+  h1 {
+    font-size: clamp(24px, 6.4vw, 34px);
+    font-weight: 900;
+    line-height: 1.35;
+    color: #141414;
+    margin-bottom: 14px;
+  }
+  .sub { color: #5a5a5a; font-size: 15px; line-height: 1.7; margin-bottom: 26px; }
+
+  /* 按钮 */
+  button { font-family: inherit; cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .btn {
+    border: 3px solid #141414;
+    border-radius: 999px;
+    padding: 15px 34px;
+    font-size: 17px; font-weight: 800; color: #141414;
+    box-shadow: 5px 6px 0 #141414;
+    transition: transform .08s ease, box-shadow .08s ease, left .15s ease-out, top .15s ease-out;
+    touch-action: manipulation;
+  }
+  .btn:active { transform: translate(3px, 4px); box-shadow: 2px 2px 0 #141414; }
+  .btn.pink  { background: #ff4fa3; }
+  .btn.white { background: #fff; }
+  .btn.wide  { width: 100%; margin-top: 26px; }
+  .btn[disabled] {
+    opacity: .72;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 3px 4px 0 #141414 !important;
+  }
+  .btn-row { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; }
+  #noBtn { z-index: 60; }
+
+  /* 表单 */
+  .field-label {
+    display: block; text-align: left;
+    font-weight: 800; font-size: 15px; color: #141414;
+    margin: 16px 0 8px 4px;
+  }
+  input[type="date"], select {
+    width: 100%;
+    font-family: inherit; font-size: 16px; color: #141414;
+    background: #fff;
+    border: 3px solid #141414;
+    border-radius: 18px;
+    padding: 14px 16px;
+    min-height: 54px;
+    box-shadow: 4px 5px 0 #141414;
+    appearance: none; -webkit-appearance: none;
+  }
+  select {
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23141414' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center;
+    padding-right: 44px;
+  }
+  .shake { animation: shake .4s; border-color: #ff2f92 !important; }
+  @keyframes shake {
+    20% { transform: translateX(-6px); } 40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); } 80% { transform: translateX(4px); }
+  }
+
+  /* 食物九宫格 */
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 6px;
+  }
+  .food {
+    background: #fff;
+    border: 3px solid #141414;
+    border-radius: 20px;
+    padding: 16px 6px 12px;
+    font-size: 14px; font-weight: 800; color: #141414;
+    box-shadow: 5px 6px 0 #141414;
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .food:hover  { transform: translate(-2px, -2px); box-shadow: 7px 8px 0 #141414; }
+  .food:active { transform: translate(3px, 4px);  box-shadow: 2px 2px 0 #141414; }
+  .food span { display: block; font-size: 34px; margin-bottom: 8px; }
+
+  /* 最终确认卡 */
+  .info {
+    border: 3px solid #141414;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: 8px 9px 0 #141414;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    text-align: left;
+    margin-top: 24px;
+  }
+  .cell {
+    background: #fff;
+    border: 3px solid #141414;
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 4px 5px 0 #141414;
+  }
+  .cell .k { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #ff2f92; }
+  .cell .v { font-size: 19px; font-weight: 900; margin-top: 4px; word-break: break-all; }
+
+  .hearts { display: flex; justify-content: center; gap: 14px; margin-top: 28px; font-size: 18px; }
+  .hearts span { display: inline-block; animation: pop .5s both; }
+  .hearts span:nth-child(1) { animation-delay: .10s; }
+  .hearts span:nth-child(2) { animation-delay: .25s; }
+  .hearts span:nth-child(3) { animation-delay: .40s; }
+  .hearts span:nth-child(4) { animation-delay: .55s; }
+  .hearts span:nth-child(5) { animation-delay: .70s; }
+  @keyframes pop { from { transform: scale(0); } 70% { transform: scale(1.35); } to { transform: scale(1); } }
+
+  .linkish {
+    margin-top: 24px;
+    background: none; border: none;
+    font-size: 13px; color: #9a9a9a;
+    text-decoration: underline dotted;
+  }
+  .share-tip {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #6a6a6a;
+    min-height: 18px;
+  }
+
+  /* 飘落的花瓣 */
+  .petal {
+    position: fixed; top: -8vh; z-index: 0;
+    pointer-events: none; opacity: .85;
+    animation: fall linear infinite;
+  }
+  @keyframes fall { to { transform: translateY(120vh) rotate(320deg); } }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- 第 1 页：邀请 -->
+  <section class="card active" id="page1">
+    <div class="icon"><img src="avatar.png" alt="我"></div>
+    <!-- 想换成自己的照片？把上面一行换成：
+         <div class="icon"><img src="你的照片.jpg" alt="我"></div> -->
+    <h1>🌸 可以和我一起<br>约会嘛？！ 🌸</h1>
+    <p class="sub">系统检测到：对方已经激动的无法自拔了。</p>
+    <div class="btn-row">
+      <button class="btn pink" id="yesBtn">愿意 ❤</button>
+      <button class="btn white" id="noBtn">不要 🦶</button>
+    </div>
+  </section>
+
+  <!-- 第 2 页：假装惊讶 -->
+  <section class="card" id="page2">
+    <div class="icon"><img src="surprise-avatar.png" alt="激动的我"></div>
+    <h1>等下，你真的点了愿意？？😭</h1>
+    <p class="sub">我都已经准备好被你点&ldquo;不要&rdquo;了。</p>
+    <button class="btn pink" id="okBtn">好啦好啦 →</button>
+  </section>
+
+  <!-- 第 3 页：选时间 -->
+  <section class="card" id="page3">
+    <div class="icon"><img src="time-avatar.png" alt="选时间的我"></div>
+    <h1>所以…你什么时候有空？☺️</h1>
+    <label class="field-label" for="dateInput">选一天 🗓️</label>
+    <input type="date" id="dateInput" />
+    <label class="field-label" for="timeSel">几点见？⏰</label>
+    <select id="timeSel">
+      <option value="" selected>选择时间…</option>
+    </select>
+    <button class="btn pink wide" id="confirmBtn">确定时间 ❤</button>
+  </section>
+
+  <!-- 第 4 页：选吃的 -->
+  <section class="card" id="page4">
+    <div class="icon"><img src="food-avatar.png" alt="想吃饭的我"></div>
+    <h1>我们吃点什么？🍽️✨</h1>
+    <p class="sub">挑一个今天的约会氛围。</p>
+    <div class="food-grid">
+      <button class="food" data-food="披萨"><span>🍕</span>披萨</button>
+      <button class="food" data-food="寿司"><span>🍣</span>寿司</button>
+      <button class="food" data-food="火锅"><span>🍲</span>火锅</button>
+      <button class="food" data-food="烤肉"><span>🥩</span>烤肉</button>
+      <button class="food" data-food="早茶"><span>🥟</span>早茶</button>
+      <button class="food" data-food="拉面"><span>🍜</span>拉面</button>
+      <button class="food" data-food="麻辣烫"><span>🌶️</span>麻辣烫</button>
+      <button class="food" data-food="小龙虾"><span>🦞</span>小龙虾</button>
+      <button class="food" data-food="烧烤"><span>🍢</span>烧烤</button>
+      <button class="food" data-food="其他"><span>✍️</span>其他</button>
+    </div>
+  </section>
+
+  <!-- 第 5 页：约会确认卡 -->
+  <section class="card" id="page5">
+    <div class="icon"><img src="final-avatar.png" alt="开心的我"></div>
+    <h1>真开心你没有拒绝～<br>我会准时来接你！</h1>
+    <p class="sub" id="finalSub"></p>
+    <div class="info">
+      <div class="cell"><div class="k">DATE</div><div class="v" id="finalDate"></div></div>
+      <div class="cell"><div class="k">TIME</div><div class="v" id="finalTime"></div></div>
+      <div class="cell"><div class="k">MENU</div><div class="v" id="finalMenu"></div></div>
+    </div>
+    <div class="hearts">
+      <span>💗</span><span>💗</span><span>💗</span><span>💗</span><span>💗</span>
+    </div>
+    <button class="btn pink wide" id="shareResult">告诉Ta你的答案吧！ 💌</button>
+    <p class="share-tip" id="shareTip"></p>
+    <button class="linkish" id="restart">再玩一次 ↺</button>
+  </section>
+
+</div>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  let lastSentSignature = '';
+  let sendingNotify = false;
+  const shareBtn = $('#shareResult');
+  const shareTip = $('#shareTip');
+  const shareBtnDefaultText = shareBtn.textContent;
+
+  function show(id) {
+    document.querySelectorAll('.card').forEach((c) => c.classList.remove('active'));
+    $('#' + id).classList.add('active');
+  }
+
+  /* ---------- 会逃跑的"不要"按钮 ---------- */
+  const noBtn = $('#noBtn');
+  const noHome = noBtn.parentElement; // .btn-row
+  const noLabels = ['不要 🦶', '点不到吧 😁', 'no 🐾', '不要哇 🙈', '再想想嘛 🥺', '别追啦 🏃', '真的点不到 😜'];
+  let noIndex = 0;
+
+  function runAway(e) {
+    e.preventDefault();
+    // .frame 有 backdrop-filter，会把 fixed 子元素锁在框内；
+    // 用视口坐标定位时按钮会被甩出可视区，看起来像“消失”。
+    // 所以逃跑时把按钮挂到 body 上，相对整个窗口乱跳。
+    if (noBtn.style.position !== 'fixed') {
+      const rect = noBtn.getBoundingClientRect();
+      const ghost = document.createElement('span');
+      ghost.id = 'noGhost';
+      ghost.style.width = rect.width + 'px';
+      ghost.style.height = rect.height + 'px';
+      ghost.style.visibility = 'hidden';
+      noBtn.after(ghost);
+      document.body.appendChild(noBtn);
+      noBtn.style.position = 'fixed';
+      noBtn.style.zIndex = '999';
+    }
+    noIndex = (noIndex + 1) % noLabels.length;
+    noBtn.textContent = noLabels[noIndex];
+    const pad = 14;
+    const maxX = Math.max(pad, window.innerWidth - noBtn.offsetWidth - pad);
+    const maxY = Math.max(pad, window.innerHeight - noBtn.offsetHeight - pad);
+    // 尽量躲开当前鼠标位置，避免一落地又立刻触发
+    let x, y, tries = 0;
+    do {
+      x = pad + Math.random() * (maxX - pad);
+      y = pad + Math.random() * (maxY - pad);
+      tries += 1;
+    } while (
+      tries < 8 &&
+      Math.hypot(x + noBtn.offsetWidth / 2 - e.clientX, y + noBtn.offsetHeight / 2 - e.clientY) < 120
+    );
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+  ['mouseenter', 'touchstart', 'click'].forEach((ev) =>
+    noBtn.addEventListener(ev, runAway, { passive: false })
+  );
+
+  window.addEventListener('resize', () => {
+    if (noBtn.style.position !== 'fixed') return;
+    const pad = 14;
+    const maxX = Math.max(pad, window.innerWidth - noBtn.offsetWidth - pad);
+    const maxY = Math.max(pad, window.innerHeight - noBtn.offsetHeight - pad);
+    noBtn.style.left = Math.min(parseFloat(noBtn.style.left) || pad, maxX) + 'px';
+    noBtn.style.top = Math.min(parseFloat(noBtn.style.top) || pad, maxY) + 'px';
+  });
+
+  function resetNoBtn() {
+    noIndex = 0;
+    noBtn.textContent = noLabels[0];
+    noBtn.style.position = '';
+    noBtn.style.left = '';
+    noBtn.style.top = '';
+    noBtn.style.zIndex = '';
+    const ghost = document.getElementById('noGhost');
+    if (ghost) {
+      ghost.replaceWith(noBtn);
+    } else if (!noHome.contains(noBtn)) {
+      noHome.appendChild(noBtn);
+    }
+  }
+
+  /* ---------- 页面流转 ---------- */
+  $('#yesBtn').addEventListener('click', () => show('page2'));
+  $('#okBtn').addEventListener('click', () => show('page3'));
+
+  /* ---------- 日期 & 时间 ---------- */
+  const dateInput = $('#dateInput');
+  const timeSel = $('#timeSel');
+
+  const now = new Date();
+  dateInput.min =
+    now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+
+  for (let h = 10; h <= 21; h++) {
+    for (const m of ['00', '30']) {
+      const t = String(h).padStart(2, '0') + ':' + m;
+      timeSel.add(new Option(t, t));
+    }
+  }
+
+  function wobble(el) {
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+    el.addEventListener('animationend', () => el.classList.remove('shake'), { once: true });
+  }
+
+  $('#confirmBtn').addEventListener('click', () => {
+    let ok = true;
+    if (!dateInput.value) { wobble(dateInput); ok = false; }
+    if (!timeSel.value) { wobble(timeSel); ok = false; }
+    if (ok) show('page4');
+  });
+
+  /* ---------- 选吃的 → 确认卡 ---------- */
+  document.querySelectorAll('.food').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      let food = btn.dataset.food;
+      if (food === '其他') {
+        const custom = prompt('想吃点什么？告诉我嘛～');
+        food = custom && custom.trim() ? custom.trim() : '神秘惊喜';
+      }
+      finish(food);
+    });
+  });
+
+  function finish(food) {
+    const parts = dateInput.value.split('-').map(Number);
+    const dateStr = parts[1] + '月' + parts[2] + '日';
+    const time = timeSel.value;
+    $('#finalSub').textContent = dateStr + ' ' + time + '，我们去吃' + food + '。带好胃口，我带好路线。';
+    $('#finalDate').textContent = dateStr;
+    $('#finalTime').textContent = time;
+    $('#finalMenu').textContent = food;
+    show('page5');
+  }
+
+  /* ---------- Server酱手动通知 ---------- */
+  async function sendServerChanResult() {
+    const date = $('#finalDate').textContent;
+    const time = $('#finalTime').textContent;
+    const menu = $('#finalMenu').textContent;
+    const signature = `${date}|${time}|${menu}`;
+    if (signature === lastSentSignature) {
+      shareTip.textContent = '这个结果已经通知过啦～';
+      return;
+    }
+    if (sendingNotify) return;
+
+    sendingNotify = true;
+    shareBtn.disabled = true;
+    shareBtn.textContent = '发送中...';
+    shareTip.textContent = '正在通知，请稍等～';
+    lastSentSignature = signature;
+
+    const title = '新的约会确认';
+    const desp =
+      `有人填好了约会网页\n\n` +
+      `- 日期：${date}\n` +
+      `- 时间：${time}\n` +
+      `- 菜品：${menu}\n` +
+      `- 时间戳：${new Date().toLocaleString()}`;
+
+    try {
+      const resp = await fetch('/api/notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, desp })
+      });
+
+      let data = null;
+      try {
+        data = await resp.json();
+      } catch (e) {
+        data = null;
+      }
+
+      if (!resp.ok || !data?.ok) {
+        const msg = data?.message || `HTTP ${resp.status}`;
+        throw new Error(msg);
+      }
+      shareTip.textContent = '已通知到他的微信啦～';
+      shareBtn.textContent = '已通知 ✅';
+    } catch (err) {
+      console.error('Server酱推送失败：', err);
+      shareTip.textContent = '通知失败，请稍后重试。';
+      shareBtn.disabled = false;
+      shareBtn.textContent = shareBtnDefaultText;
+      lastSentSignature = '';
+    } finally {
+      sendingNotify = false;
+    }
+  }
+
+  /* ---------- 点击按钮后才通知 ---------- */
+  $('#shareResult').addEventListener('click', async () => {
+    await sendServerChanResult();
+  });
+
+  /* ---------- 再玩一次 ---------- */
+  $('#restart').addEventListener('click', () => {
+    dateInput.value = '';
+    timeSel.value = '';
+    shareTip.textContent = '';
+    shareBtn.disabled = false;
+    shareBtn.textContent = shareBtnDefaultText;
+    lastSentSignature = '';
+    sendingNotify = false;
+    resetNoBtn();
+    show('page1');
+  });
+
+  // 点“愿意”时也把逃跑按钮收回来，避免留在屏幕上
+  $('#yesBtn').addEventListener('click', resetNoBtn);
+
+  /* ---------- 飘落的花瓣 ---------- */
+  const flowers = ['🌸', '💮', '🌺'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('span');
+    p.className = 'petal';
+    p.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+    p.style.left = Math.random() * 96 + 'vw';
+    p.style.fontSize = 12 + Math.random() * 16 + 'px';
+    p.style.animationDuration = 7 + Math.random() * 8 + 's';
+    p.style.animationDelay = -Math.random() * 12 + 's';
+    document.body.appendChild(p);
+  }
+</script>
+</body>
+</html>

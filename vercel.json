@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/letter.html",
+      "destination": "/letter",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/letter",
+      "destination": "/letter.html"
+    }
+  ]
+}

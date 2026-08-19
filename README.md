@@ -4,7 +4,7 @@
 
 线上地址：[https://dating-with-trd.vercel.app/](https://dating-with-trd.vercel.app/)
 
-七夕信：[https://dating-with-trd.vercel.app/letter.html](https://dating-with-trd.vercel.app/letter.html)
+七夕信：[https://dating-with-trd.vercel.app/letter](https://dating-with-trd.vercel.app/letter)
 
 ## 流程
 
@@ -14,7 +14,7 @@
 4. 选择菜品（点「其他」可自定义）
 5. 约会确认卡（DATE / TIME / MENU），可一键通知
 
-首页底部可进入 `letter.html`（写给小耿的七夕信，含两周年倒计时）。
+首页底部可进入 `/letter`（写给小耿的七夕信）。
 
 ## 本地预览
 

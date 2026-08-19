@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#ffd9ec" />
+<title>写给小耿的一封信</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #ffd9ec 0%, #fff3f6 35%, #f3ffe9 75%, #dff6e4 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 28px 14px 40px;
+    touch-action: manipulation;
+  }
+  body.cover {
+    align-items: center;
+    padding: 28px 14px;
+  }
+
+  .frame {
+    position: relative; z-index: 1;
+    width: min(560px, 100%);
+    background: rgba(255, 255, 255, .42);
+    border: 2px solid rgba(110, 110, 110, .35);
+    border-radius: 48px;
+    padding: clamp(18px, 5vw, 42px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .10);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+
+  .card {
+    display: none;
+    background: #fcfcfa;
+    border: 3px solid #141414;
+    border-radius: 34px;
+    padding: clamp(30px, 6vw, 48px) clamp(20px, 5vw, 36px);
+    box-shadow: 10px 12px 0 #141414;
+    text-align: center;
+  }
+  .card.active { display: block; animation: popIn .38s cubic-bezier(.2, .9, .3, 1.25); }
+  #page1.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #page1.leaving { animation: fadeLift .3s ease forwards; }
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(18px) scale(.96); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes fadeLift {
+    to { opacity: 0; transform: translateY(-8px); }
+  }
+
+  .bloom { font-size: 22px; margin-bottom: 8px; }
+  h1 {
+    font-size: clamp(24px, 6.4vw, 32px);
+    font-weight: 900;
+    line-height: 1.35;
+    color: #141414;
+    margin-bottom: 10px;
+  }
+  .sub { color: #5a5a5a; font-size: 15px; line-height: 1.7; margin-bottom: 4px; }
+  .hint { margin-top: 12px; font-size: 12px; color: #9a9a9a; }
+
+  button { font-family: inherit; cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .btn {
+    border: 3px solid #141414;
+    border-radius: 999px;
+    padding: 15px 34px;
+    font-size: 17px; font-weight: 800; color: #141414;
+    box-shadow: 5px 6px 0 #141414;
+    touch-action: manipulation;
+    background: #ff4fa3;
+  }
+  .btn:active { transform: translate(3px, 4px); box-shadow: 2px 2px 0 #141414; }
+  .btn.wide { width: 100%; margin-top: 22px; }
+  #page1 .btn { width: auto; min-width: 220px; margin-top: 6px; }
+  .btn[disabled] { opacity: .72; cursor: not-allowed; transform: none !important; }
+
+  /* 闭合信封：信纸藏在袋口后，盖子盖住顶部，火漆贴在盖尖 */
+  .env-stage {
+    width: 280px;
+    height: 236px;
+    margin: 18px auto 12px;
+    perspective: 1200px;
+  }
+  .env {
+    position: relative;
+    width: 280px;
+    height: 168px;
+    margin: 56px auto 0;
+    background: #f4a7c3;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 14px 24px rgba(255, 79, 163, .24);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .env.open { overflow: visible; }
+
+  .env-paper {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 52px;
+    height: 124px;
+    background: #fffdf8;
+    border-radius: 6px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: top .55s ease .35s;
+  }
+  .env-paper img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+  .env-paper em {
+    font-style: normal;
+    font-size: 13px;
+    font-weight: 800;
+    color: #ff2f92;
+  }
+
+  .env-front {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .env-front .l,
+  .env-front .r {
+    position: absolute;
+    bottom: 0;
+    width: 0;
+    height: 0;
+  }
+  .env-front .l {
+    left: 0;
+    border-style: solid;
+    border-width: 0 0 168px 140px;
+    border-color: transparent transparent transparent #ff8fbc;
+  }
+  .env-front .r {
+    right: 0;
+    border-style: solid;
+    border-width: 0 140px 168px 0;
+    border-color: transparent #ff76ab transparent transparent;
+  }
+
+  .env-flap-back {
+    position: absolute;
+    left: 0;
+    top: -91px;
+    width: 0;
+    height: 0;
+    border-left: 140px solid transparent;
+    border-right: 140px solid transparent;
+    border-bottom: 92px solid #ffd4e6;
+    z-index: 0;
+    opacity: 0;
+  }
+  .env-flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 140px solid transparent;
+    border-right: 140px solid transparent;
+    border-top: 92px solid #ff6798;
+    transform-origin: top center;
+    z-index: 4;
+    transition: transform .55s ease;
+  }
+  .env-seal {
+    position: absolute;
+    left: 50%;
+    top: 70px;
+    width: 38px;
+    height: 38px;
+    margin-left: -19px;
+    border-radius: 50%;
+    background: #ff2f7a;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 0 #c91858;
+    z-index: 5;
+    transition: opacity .2s ease;
+  }
+  .env.open .env-flap { transform: rotateX(180deg); z-index: 0; }
+  .env.open .env-flap-back { opacity: 1; }
+  .env.open .env-seal { opacity: 0; }
+  .env.open .env-paper {
+    top: -96px;
+    z-index: 2;
+  }
+
+  .icon {
+    width: 112px; height: 112px;
+    margin: 0 auto 16px;
+    border: 3px solid #141414;
+    border-radius: 26px;
+    background: #eceae6;
+    box-shadow: 9px 9px 0 #ff4fa3;
+    overflow: hidden;
+  }
+  .icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  #page2 {
+    background: #f6f1e6;
+    text-align: left;
+    padding: clamp(28px, 6vw, 40px) clamp(20px, 5vw, 34px) 28px;
+  }
+  .letterhead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(80, 70, 55, .16);
+  }
+  .letterhead img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    box-shadow: 0 4px 12px rgba(80, 50, 40, .12);
+  }
+  .letterhead .who {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2b261f;
+  }
+  .letterhead .when {
+    margin-top: 4px;
+    font-size: 12px;
+    letter-spacing: .08em;
+    color: #8a7f70;
+  }
+
+  .letter {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    color: #3a342c;
+    font-size: 16px;
+    line-height: 2.05;
+    font-weight: 400;
+    max-width: 42em;
+  }
+  .letter .to {
+    font-weight: 700;
+    font-size: 18px;
+    color: #2b261f;
+    margin-bottom: 18px;
+  }
+  .letter p {
+    text-indent: 2em;
+    margin-bottom: 1em;
+  }
+  #page2.active .letter p {
+    opacity: 0;
+    animation: rise .7s ease forwards;
+  }
+  #page2.active .letter p:nth-of-type(1) { animation-delay: .08s; }
+  #page2.active .letter p:nth-of-type(2) { animation-delay: .18s; }
+  #page2.active .letter p:nth-of-type(3) { animation-delay: .28s; }
+  #page2.active .letter p:nth-of-type(4) { animation-delay: .38s; }
+  #page2.active .letter p:nth-of-type(5) { animation-delay: .48s; }
+  #page2.active .letter p:nth-of-type(6) { animation-delay: .58s; }
+  .letter p:last-of-type { margin-bottom: 0; }
+  @keyframes rise { to { opacity: 1; } }
+  .sign {
+    margin-top: 32px;
+    text-align: right;
+    font-weight: 600;
+    line-height: 1.9;
+    color: #2b261f;
+  }
+  #page2.active .sign {
+    opacity: 0;
+    animation: rise .7s ease .7s forwards;
+  }
+
+  .quiet {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(80, 70, 55, .16);
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: .12em;
+    color: #8a7f70;
+  }
+  #page2 .btn.wide { margin-top: 20px; }
+
+  .petal {
+    position: fixed; top: -8vh; z-index: 0;
+    pointer-events: none; opacity: .85;
+    animation: fall linear infinite;
+  }
+  @keyframes fall { to { transform: translateY(120vh) rotate(320deg); } }
+</style>
+</head>
+<body class="cover">
+
+<div class="frame">
+
+  <section class="card active" id="page1">
+    <div class="bloom">🌸</div>
+    <h1>有一封信想给你</h1>
+    <p class="sub">七夕到了。我想把心里的话，认真交给你。</p>
+    <div class="env-stage">
+      <div class="env" id="envelope">
+        <div class="env-flap-back"></div>
+        <div class="env-paper">
+          <img src="letter-avatar.png" alt="我们">
+          <em>给小耿</em>
+        </div>
+        <div class="env-front"><i class="l"></i><i class="r"></i></div>
+        <div class="env-flap"></div>
+        <div class="env-seal">❤</div>
+      </div>
+    </div>
+    <button class="btn" id="openBtn">拆开看看 ❤</button>
+    <p class="hint">点信封也可以拆开</p>
+  </section>
+
+  <section class="card" id="page2">
+    <header class="letterhead">
+      <img src="letter-avatar.png" alt="我们">
+      <div>
+        <div class="who">写给小耿</div>
+        <div class="when">2026年8月19日 · 七夕</div>
+      </div>
+    </header>
+
+    <article class="letter">
+      <div class="to">小耿：</div>
+      <p>今天是七夕。我没有准备很长的漂亮句子，只想把心里那点真实的想法，认真写给你。</p>
+      <p>和你在一起之后，很多普通的日子都变得不一样了。下班路上会想你，看到好玩的东西会想发给你，累的时候也会下意识找你。你大概不知道，这些小小的念头，已经成了我最稳的习惯。</p>
+      <p>谢谢你包容我的不完美，也谢谢你愿意把你的情绪、你的开心和你的疲惫，都交给我。有你在，我觉得踏实；有你在，我觉得被接住了。</p>
+      <p>项链我挑了很久。它不贵，但我希望你能喜欢，也希望你戴上它的时候，能想起：有一个人，一直很在意你。</p>
+      <p>再过几天就是我们的两周年了。两年里，有热闹，也有平淡；有欢喜，也有磨合。可我越来越清楚：我想继续和你走下去。把下一顿饭、下一次日落、下一个普通的晚上，都留给你。</p>
+      <p>七夕快乐，小耿。愿你被温柔对待，也愿我能一直站在你身边。</p>
+      <div class="sign">
+        想你的人<br>
+        仝荣达<br>
+        写于七夕
+      </div>
+    </article>
+
+    <p class="quiet" id="letterMeta">在一起的日子，还在继续</p>
+    <button class="btn wide" id="goDate">那…再和我约会一次？ ❤</button>
+  </section>
+
+</div>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const envelope = $('#envelope');
+  const openBtn = $('#openBtn');
+  const page1 = $('#page1');
+
+  function showLetter() {
+    page1.classList.add('leaving');
+    setTimeout(() => {
+      document.body.classList.remove('cover');
+      document.querySelectorAll('.card').forEach((c) => c.classList.remove('active'));
+      page1.classList.remove('leaving');
+      $('#page2').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 260);
+  }
+
+  function openEnvelope() {
+    if (envelope.classList.contains('open')) return;
+    openBtn.disabled = true;
+    openBtn.textContent = '拆开中...';
+    envelope.classList.add('open');
+    setTimeout(showLetter, 980);
+  }
+
+  openBtn.addEventListener('click', openEnvelope);
+  envelope.addEventListener('click', openEnvelope);
+  $('#goDate').addEventListener('click', () => { location.href = './'; });
+
+  const start = new Date(2024, 8, 1);
+  const anniversary = new Date(2026, 8, 1, 0, 0, 0);
+
+  function tick() {
+    const now = new Date();
+    const together = Math.max(1, Math.floor((now - start) / 86400000) + 1);
+    const diff = anniversary - now;
+    let left = '两周年到了';
+    if (diff > 0) {
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      left = days > 0 ? '距两周年还有 ' + days + ' 天' : '距两周年还有 ' + hours + ' 小时';
+    }
+    $('#letterMeta').textContent = '在一起 ' + together + ' 天  ·  ' + left;
+  }
+  tick();
+  setInterval(tick, 60000);
+
+  const flowers = ['🌸', '💮', '🌺'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('span');
+    p.className = 'petal';
+    p.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+    p.style.left = Math.random() * 96 + 'vw';
+    p.style.fontSize = 12 + Math.random() * 16 + 'px';
+    p.style.animationDuration = 7 + Math.random() * 8 + 's';
+    p.style.animationDelay = -Math.random() * 12 + 's';
+    document.body.appendChild(p);
+  }
+</script>
+</body>
+</html>
